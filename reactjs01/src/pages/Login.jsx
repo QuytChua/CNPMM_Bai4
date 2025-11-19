@@ -14,7 +14,7 @@ export default function Login() {
       login(res.data.token);
       navigate("/");
     } catch (err) {
-      alert(err.response.data.message);
+      alert(err.response?.data?.message || "Lỗi đăng nhập");
     }
   };
 
@@ -23,14 +23,24 @@ export default function Login() {
       <h2>Login</h2>
 
       <Form layout="vertical" onFinish={onFinish}>
-        <Form.Item name="email" label="Email" rules={[{ required: true }]}>
+        <Form.Item
+          name="email"
+          label="Email"
+          rules={[
+            { required: true, message: "Vui lòng nhập email" },
+            { type: "email", message: "Email không hợp lệ" },
+          ]}
+        >
           <Input placeholder="Nhập email" />
         </Form.Item>
 
         <Form.Item
           name="password"
           label="Password"
-          rules={[{ required: true }]}
+          rules={[
+            { required: true, message: "Vui lòng nhập mật khẩu" },
+            { min: 6, message: "Mật khẩu ít nhất 6 ký tự" },
+          ]}
         >
           <Input.Password placeholder="Nhập mật khẩu" />
         </Form.Item>
