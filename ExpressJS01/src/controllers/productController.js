@@ -24,3 +24,13 @@ export const handleCreateProduct = async (req, res) => {
     res.status(400).json({ message: err.message });
   }
 };
+
+// SEARCH endpoint
+export const handleSearchProducts = async (req, res) => {
+  try {
+    const data = await productService.searchProducts(req.query);
+    res.json(data);
+  } catch (err) {
+    res.status(500).json({ message: err.message });
+  }
+};

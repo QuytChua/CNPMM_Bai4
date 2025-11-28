@@ -21,6 +21,10 @@ import {
   createProductValidation,
   getProductsValidation,
 } from "../validations/productValidation.js";
+import {
+  searchProductsController,
+  getFilterOptionsController,
+} from "../controllers/searchController.js";
 
 const router = express.Router();
 
@@ -53,8 +57,13 @@ const initRoutes = (app) => {
   });
 
   // PRODUCTS
-  // user thường cũng xem được danh sách sản phẩm
   router.get("/products", validate(getProductsValidation), handleGetProducts);
+
+  // API tìm kiếm nâng cao
+  router.get("/products/search", searchProductsController);
+
+  // API lấy tùy chọn filter
+  router.get("/products/filter-options", getFilterOptionsController);
 
   // chỉ ADMIN mới được tạo sản phẩm
   router.post(
