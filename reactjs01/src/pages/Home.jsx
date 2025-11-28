@@ -140,7 +140,7 @@ export default function Home() {
       minPrice: filterOptions.priceRange.minPrice,
       maxPrice: filterOptions.priceRange.maxPrice,
       promo: undefined,
-      // minViews: undefined,
+      minViews: undefined,
       sortBy: "createdAt",
       sortOrder: "desc",
       page: 1,
@@ -308,10 +308,10 @@ export default function Home() {
                   />
                 )
               }
-              // actions={[
-              //   <Text key="views">👁 {product.views || 0}</Text>,
-              //   <Text key="rating">⭐ {product.rating || 0}</Text>,
-              // ]}
+              actions={[
+                <Text key="views">👁 {product.views || 0}</Text>,
+                <Text key="rating">⭐ {product.rating || 0}</Text>,
+              ]}
             >
               <Card.Meta
                 title={
