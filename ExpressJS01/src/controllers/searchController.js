@@ -1,9 +1,7 @@
 import { searchProducts, getProducts } from "../services/productService.js";
 import Product from "../models/product.js";
 
-/**
- * API tìm kiếm sản phẩm nâng cao
- */
+// Tìm kiếm sản phẩm với nhiều tiêu chí
 export const searchProductsController = async (req, res) => {
   try {
     const searchParams = {
@@ -25,9 +23,9 @@ export const searchProductsController = async (req, res) => {
     };
 
     console.log("Search params:", searchParams);
-
     const result = await searchProducts(searchParams);
 
+    // Trả về kết quả tìm kiếm với format chuẩn
     res.json({
       success: true,
       data: result,
@@ -35,6 +33,7 @@ export const searchProductsController = async (req, res) => {
     });
   } catch (error) {
     console.error("Search error:", error);
+    // Xử lý lỗi tìm kiếm (query error, database connection, etc.)
     res.status(500).json({
       success: false,
       message: "Lỗi khi tìm kiếm sản phẩm",
@@ -43,12 +42,9 @@ export const searchProductsController = async (req, res) => {
   }
 };
 
-/**
- * API lấy các tùy chọn filter
- */
+// Lấy các tùy chọn filter cho UI
 export const getFilterOptionsController = async (req, res) => {
   try {
-    // Lấy các category và price range từ database
     const categories = await Product.distinct("category");
     const priceStats = await Product.aggregate([
       {
@@ -68,6 +64,8 @@ export const getFilterOptionsController = async (req, res) => {
         maxPrice: 1000000,
         avgPrice: 500000,
       },
+
+      // Định nghĩa các tùy chọn sắp xếp có sẵn
       sortOptions: [
         { value: "createdAt", label: "Mới nhất", orders: ["desc", "asc"] },
         { value: "price", label: "Giá", orders: ["asc", "desc"] },
@@ -86,6 +84,7 @@ export const getFilterOptionsController = async (req, res) => {
     });
   } catch (error) {
     console.error("Filter options error:", error);
+    // Xử lý lỗi khi truy vấn database để lấy filter options
     res.status(500).json({
       success: false,
       message: "Lỗi khi lấy tùy chọn lọc",
@@ -94,13 +93,10 @@ export const getFilterOptionsController = async (req, res) => {
   }
 };
 
-/**
- * API lấy danh sách sản phẩm
- */
+// Lấy danh sách sản phẩm cơ bản
 export const getProductsController = async (req, res) => {
   try {
     const { page = 1, limit = 12, category = "" } = req.query;
-
     const result = await getProducts(page, limit, category);
 
     res.json({

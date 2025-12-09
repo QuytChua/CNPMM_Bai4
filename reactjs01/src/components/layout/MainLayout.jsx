@@ -6,7 +6,7 @@ import { useContext } from "react";
 const { Header, Content } = Layout;
 
 export default function MainLayout({ children }) {
-  const { token, logout } = useContext(AuthContext);
+  const { token, user, logout, isAdmin } = useContext(AuthContext);
 
   return (
     <Layout style={{ minHeight: "100vh" }}>
@@ -32,10 +32,21 @@ export default function MainLayout({ children }) {
             </>
           )}
 
-          {token && (
-            <Menu.Item key="5" onClick={logout}>
-              Logout
+          {token && isAdmin() && (
+            <Menu.Item key="admin">
+              <Link to="/add-product">Thêm Sản Phẩm</Link>
             </Menu.Item>
+          )}
+
+          {token && (
+            <>
+              <Menu.Item key="user" disabled>
+                Xin chào {user?.email}
+              </Menu.Item>
+              <Menu.Item key="5" onClick={logout}>
+                Logout
+              </Menu.Item>
+            </>
           )}
         </Menu>
       </Header>

@@ -1,6 +1,6 @@
 import * as userService from "../services/userService.js";
 
-// REGISTER
+// Đăng ký tài khoản mới
 export const handleRegister = async (req, res) => {
   try {
     const result = await userService.register(req.body);
@@ -8,9 +8,7 @@ export const handleRegister = async (req, res) => {
   } catch (err) {
     res.status(400).json({ message: err.message });
   }
-};
-
-// LOGIN
+}; // Đăng nhập và tạo JWT token
 export const handleLogin = async (req, res) => {
   try {
     const result = await userService.login(req.body);
@@ -18,9 +16,7 @@ export const handleLogin = async (req, res) => {
   } catch (err) {
     res.status(400).json({ message: err.message });
   }
-};
-
-// FORGOT PASSWORD
+}; // Reset mật khẩu và gửi email
 export const handleForgotPassword = async (req, res) => {
   try {
     await userService.forgotPassword(req.body.email);
