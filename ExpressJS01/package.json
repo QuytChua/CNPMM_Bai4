@@ -4,9 +4,13 @@
   "type": "module",
   "scripts": {
     "dev": "nodemon ./src/server.js",
-    "start": "nodemon ./src/server.js"
+    "start": "nodemon ./src/server.js",
+    "es:sync": "node ./src/syncElasticsearch.js sync",
+    "es:reset": "node ./src/syncElasticsearch.js reset",
+    "es:status": "node ./src/syncElasticsearch.js status"
   },
   "dependencies": {
+    "@elastic/elasticsearch": "^8.11.0",
     "bcrypt": "^6.0.0",
     "cors": "^2.8.5",
     "dotenv": "^17.2.3",

@@ -1,19 +1,34 @@
 import { Layout, Menu } from "antd";
-import { Link } from "react-router-dom";
+import { Link, useNavigate, useLocation } from "react-router-dom";
 import { AuthContext } from "../context/AuthContext";
+import { useHome } from "../context/HomeContext";
 import { useContext } from "react";
+import { HomeOutlined } from "@ant-design/icons";
 
 const { Header, Content } = Layout;
 
 export default function MainLayout({ children }) {
   const { token, user, logout, isAdmin } = useContext(AuthContext);
+  const { triggerReset } = useHome();
+  const navigate = useNavigate();
+  const location = useLocation();
+
+  const handleHomeClick = () => {
+    if (location.pathname === "/") {
+      // Nếu đã ở trang home, reset bộ lọc
+      triggerReset();
+    } else {
+      // Nếu chưa ở trang home, navigate về home
+      navigate("/");
+    }
+  };
 
   return (
     <Layout style={{ minHeight: "100vh" }}>
       <Header>
         <Menu theme="dark" mode="horizontal">
-          <Menu.Item key="1">
-            <Link to="/">Home</Link>
+          <Menu.Item key="1" icon={<HomeOutlined />} onClick={handleHomeClick}>
+            Home
           </Menu.Item>
 
           {!token && (

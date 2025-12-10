@@ -23,7 +23,39 @@ export const handleCreateProduct = async (req, res) => {
   } catch (err) {
     res.status(400).json({ message: err.message });
   }
-}; // Tìm kiếm sản phẩm nâng cao
+};
+
+// Cập nhật sản phẩm (Admin only)
+export const handleUpdateProduct = async (req, res) => {
+  try {
+    const { id } = req.params;
+    const product = await productService.updateProduct(id, req.body);
+    res.json({ message: "Cập nhật sản phẩm thành công", product });
+  } catch (err) {
+    if (err.message === "Product not found") {
+      res.status(404).json({ message: err.message });
+    } else {
+      res.status(400).json({ message: err.message });
+    }
+  }
+};
+
+// Xóa sản phẩm (Admin only)
+export const handleDeleteProduct = async (req, res) => {
+  try {
+    const { id } = req.params;
+    const product = await productService.deleteProduct(id);
+    res.json({ message: "Xóa sản phẩm thành công", product });
+  } catch (err) {
+    if (err.message === "Product not found") {
+      res.status(404).json({ message: err.message });
+    } else {
+      res.status(500).json({ message: err.message });
+    }
+  }
+};
+
+// Tìm kiếm sản phẩm nâng cao
 export const handleSearchProducts = async (req, res) => {
   try {
     const data = await productService.searchProducts(req.query);

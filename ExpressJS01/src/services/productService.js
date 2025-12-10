@@ -1,4 +1,10 @@
 import Product from "../models/product.js";
+import {
+  searchProducts as elasticSearchProducts,
+  indexProduct,
+  deleteProduct as deleteFromIndex,
+  checkConnection,
+} from "./elasticsearchService.js";
 
 /** Escape ký tự đặc biệt trong regex */
 const escapeRegex = (s) => s.replace(/[.*+?^${}()|[\]\\]/g, "\\$&");
@@ -60,7 +66,22 @@ export const createProduct = async (productData) => {
     views: productData?.views,
   };
 
-  return await Product.create(data);
+  const product = await Product.create(data);
+
+  // Tự động index sản phẩm mới vào Elasticsearch
+  try {
+    const isElasticConnected = await checkConnection();
+    if (isElasticConnected) {
+      await indexProduct(product);
+    }
+  } catch (error) {
+    console.error(
+      "Error indexing new product to Elasticsearch:",
+      error.message
+    );
+  }
+
+  return product;
 };
 
 export const searchProducts = async (query = {}) => {
@@ -79,6 +100,35 @@ export const searchProducts = async (query = {}) => {
 
   const pageNum = Math.max(1, Number(page) || 1);
   const limitNum = Math.min(100, Math.max(1, Number(limit) || 12));
+
+  // Thử sử dụng Elasticsearch trước
+  try {
+    const isElasticConnected = await checkConnection();
+    if (isElasticConnected) {
+      console.log("Using Elasticsearch for search");
+      return await elasticSearchProducts({
+        q,
+        category,
+        minPrice,
+        maxPrice,
+        promo,
+        minViews,
+        sortBy,
+        sortOrder,
+        page: pageNum,
+        limit: limitNum,
+      });
+    }
+  } catch (error) {
+    console.error(
+      "Elasticsearch search failed, falling back to MongoDB:",
+      error.message
+    );
+  }
+
+  // Fallback về MongoDB nếu Elasticsearch không khả dụng
+  console.log("Using MongoDB for search (fallback)");
+
   const skip = (pageNum - 1) * limitNum;
 
   // Build $and conditions để dễ kết hợp nhiều điều kiện
@@ -160,4 +210,61 @@ export const searchProducts = async (query = {}) => {
       sortOrder: so === 1 ? "asc" : "desc",
     },
   };
+};
+
+// Cập nhật sản phẩm
+export const updateProduct = async (productId, updateData) => {
+  try {
+    const product = await Product.findByIdAndUpdate(
+      productId,
+      { ...updateData, updatedAt: new Date() },
+      { new: true, runValidators: true }
+    );
+
+    if (!product) {
+      throw new Error("Product not found");
+    }
+
+    // Cập nhật trong Elasticsearch
+    try {
+      const isElasticConnected = await checkConnection();
+      if (isElasticConnected) {
+        await indexProduct(product);
+      }
+    } catch (error) {
+      console.error("Error updating product in Elasticsearch:", error.message);
+    }
+
+    return product;
+  } catch (error) {
+    throw error;
+  }
+};
+
+// Xóa sản phẩm
+export const deleteProduct = async (productId) => {
+  try {
+    const product = await Product.findByIdAndDelete(productId);
+
+    if (!product) {
+      throw new Error("Product not found");
+    }
+
+    // Xóa khỏi Elasticsearch
+    try {
+      const isElasticConnected = await checkConnection();
+      if (isElasticConnected) {
+        await deleteFromIndex(productId);
+      }
+    } catch (error) {
+      console.error(
+        "Error deleting product from Elasticsearch:",
+        error.message
+      );
+    }
+
+    return product;
+  } catch (error) {
+    throw error;
+  }
 };

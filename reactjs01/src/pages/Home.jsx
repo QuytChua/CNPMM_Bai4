@@ -1,5 +1,6 @@
 import { useEffect, useState } from "react";
 import axiosClient from "../util/axiosClient";
+import { useHome } from "../components/context/HomeContext";
 import {
   Select,
   Card,
@@ -24,6 +25,7 @@ const { Panel } = Collapse;
 export default function Home() {
   const [products, setProducts] = useState([]);
   const [loading, setLoading] = useState(false);
+  const { resetTrigger } = useHome();
 
   // Tìm kiếm và lọc
   const [searchParams, setSearchParams] = useState({
@@ -61,6 +63,13 @@ export default function Home() {
   useEffect(() => {
     searchProducts();
   }, [searchParams]);
+
+  // Reset filters when Home is clicked
+  useEffect(() => {
+    if (resetTrigger > 0) {
+      resetFilters();
+    }
+  }, [resetTrigger]);
 
   const loadFilterOptions = async () => {
     try {
@@ -137,8 +146,8 @@ export default function Home() {
     setSearchParams({
       q: "",
       category: "",
-      minPrice: filterOptions.priceRange.minPrice,
-      maxPrice: filterOptions.priceRange.maxPrice,
+      minPrice: filterOptions.priceRange?.minPrice || 0,
+      maxPrice: filterOptions.priceRange?.maxPrice || 50000000,
       promo: undefined,
       minViews: undefined,
       sortBy: "createdAt",
